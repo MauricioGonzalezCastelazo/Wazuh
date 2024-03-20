@@ -108,8 +108,6 @@ xml = """
 #  </rule>
 #"""
 
-
-
 api = API("192.168.0.158")
 print(api.updateDecoderRule('decoders', 'pruebas.xml',xml))
 #api.get('decoders', 'pruebas.xml')
