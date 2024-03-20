@@ -95,11 +95,7 @@ class API:
             print(f"No se pudo modificar {e}")
 
 
-xml = """
-<decoder name="mi-decoder10">
-    <program_name>mi decoder10</program_name>
-</decoder>
-"""
+
         
 #xml = """
 # <rule id="100011" level="5">
@@ -108,6 +104,6 @@ xml = """
 #  </rule>
 #"""
 
-api = API("192.168.0.158")
-print(api.updateDecoderRule('decoders', 'pruebas.xml',xml))
+#api = API("192.168.0.158")
+#print(api.updateDecoderRule('decoders', 'pruebas.xml',xml))
 #api.get('decoders', 'pruebas.xml')
