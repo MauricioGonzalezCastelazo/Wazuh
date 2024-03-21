@@ -23,7 +23,6 @@ class API:
         else:
             print("No se pudo obtener el token")
 
-
     def get_response(self, request_method, url, headers, verify=False, body=None):
         """Get API result"""
         if body is None:
@@ -39,7 +38,7 @@ class API:
         except Exception as e:
             print(f'Ocurrió un error: {e}')
             return None 
-        
+ 
     def addDecoderRule(self, type, fileName, Content): 
         file = io.BytesIO(Content.encode('utf-8'))
         files = {'file' : ('pruebas.xml', file)}
@@ -94,6 +93,20 @@ class API:
         except Exception as e: 
             print(f"No se pudo modificar {e}")
 
+    def log_test(self, log): 
+        endpoint = self.url+'logtest'
+        json_log = {
+            "token":self.token, 
+            "event": log,
+            "log_format":"syslog",
+            "location":"dummy"
+        }
+        try:
+            response =  self.get_response("PUT",endpoint, self.headers)
+            print(response)
+        except Exception as e: 
+            print(f'No se pudo hacer el log test: {e}')
+             
 
 
         
@@ -104,6 +117,6 @@ class API:
 #  </rule>
 #"""
 
-#api = API("192.168.0.158")
-#print(api.updateDecoderRule('decoders', 'pruebas.xml',xml))
+api = API("192.168.0.158")
+print(api.log_test("Hola como Estas"))
 #api.get('decoders', 'pruebas.xml')
