@@ -3,7 +3,7 @@ import json
 from base64 import b64encode
 import urllib3
 import io 
-
+#NO DEJARSE EXPLOTAR ***NUNCAAAAAAA***
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class API: 
