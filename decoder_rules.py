@@ -19,7 +19,9 @@ class Decoder:
     def read_log(self, txt): 
         pass
 
-    def generate_decoder(self): 
+    def generate_decoder(self, name): 
+        type = ["pcre2", "osregex","osmatch"]
+
         prompt = """
          Make a regular expression that extracts the capitalized words in the following sentence: "Hola como Estas Amigo", give the answer in this format: regex:expresion
         """
@@ -27,12 +29,17 @@ class Decoder:
         if(regular_expresion): 
             print(f"Se ha generado la expresion regular: {regular_expresion}")
             xml = f"""
-                <decoder name="mi-decoder">
-                    <program_name>mi decoder</program_name>
-                    <regex>variable=(\{regular_expresion})</regex>
-                    <order>variable</order>
-                </decoder>
+            <decoder name="{name}">
+                <prematch>variable</prematch>
+            </decoder>
+
+            <decoder name="mi-decoder">
+                <parent>{name}</parent>
+                    <regex type="{type[0]}">pepe=({regular_expresion})</regex>
+                <order>pepe</order>
+            </decoder>
                 """
+            print(xml)
             self.updateDecoder(fileName="Prueba27.xml", xml=xml) 
 
         else: 
@@ -46,7 +53,7 @@ class Decoder:
             {"role": "user", "content": prompt}
         ],
         )
-        expresion = completion.choices[0].message.content.split(":")
+        expresion = completion.choices[0].message.content.split(": ")
         if(self.validate_expresion(expresion[1])): 
             return expresion[1]
         else: 
@@ -90,4 +97,4 @@ class Rule:
 
 decoder = Decoder()
 
-decoder.generate_decoder()
+decoder.generate_decoder("My_decoder_2")

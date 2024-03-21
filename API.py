@@ -93,19 +93,22 @@ class API:
         except Exception as e: 
             print(f"No se pudo modificar {e}")
 
-    def log_test(self, log): 
+    def log_test(self, log, file): 
+        path = '/var/ossec/etc/decoders/'
         endpoint = self.url+'logtest'
         json_log = {
-            "token":self.token, 
-            "event": log,
             "log_format":"syslog",
-            "location":"dummy"
+            "location": path+file,
+            "event": log
         }
         try:
-            response =  self.get_response("PUT",endpoint, self.headers)
-            print(response)
+            response =  requests.put(endpoint, headers = self.headers, json=json_log, verify = False)
+            print(response.text)
+            return response
+            
         except Exception as e: 
             print(f'No se pudo hacer el log test: {e}')
+            return None
              
 
 
@@ -117,6 +120,8 @@ class API:
 #  </rule>
 #"""
 
-api = API("192.168.0.158")
-print(api.log_test("Hola como Estas"))
+api = API("192.168.0.105")
+#api.get("decoders","Prueba27.xml")
+print(api.log_test("Mar 09 16:38:40 sa05 variable pepe=Jaime", "Prueba27.xml"))
 #api.get('decoders', 'pruebas.xml')
+a="<regex>nombre=([A-Z][a-z]+)</regex>"
