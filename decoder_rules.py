@@ -80,6 +80,10 @@ class Decoder:
         response = self.api.updateDecoderRule(type, fileName=fileName, Content=xml)
         print(response)
 
+    def testDecoderLog(self, log, file): 
+        return self.api.log_test(log=log, file=file)
+
+
 class Rule: 
     def __init__(self): 
         self.api = API("192.168.0.105")

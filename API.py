@@ -120,8 +120,8 @@ class API:
 #  </rule>
 #"""
 
-api = API("192.168.0.105")
+#api = API("192.168.0.105")
 #api.get("decoders","Prueba27.xml")
-print(api.log_test("Mar 09 16:38:40 sa05 variable pepe=Jaime", "Prueba27.xml"))
+#print(api.log_test("Mar 09 16:38:40 sa05 variable pepe=Jaime", "Prueba27.xml"))
 #api.get('decoders', 'pruebas.xml')
-a="<regex>nombre=([A-Z][a-z]+)</regex>"
+#a="<regex>nombre=([A-Z][a-z]+)</regex>"
