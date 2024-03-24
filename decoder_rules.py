@@ -3,6 +3,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import re
+import threading
 
 load_dotenv("config.env")
 api_key = os.getenv("OPENAI_API_KEY")
@@ -14,36 +15,37 @@ client = OpenAI(api_key=api_key)
 
 class Decoder: 
     def __init__(self): 
-        self.api = API("192.168.0.105")
+        self.api = API("192.168.1.193")
+        self.lock = threading.Lock()
+        self.resultados = {}  
 
-    def read_log(self, txt): 
-        pass
+    def process_key(self, key, diccionario): 
+        for ex in diccionario[key]:
+            left_side = ex
+            prompt = """
+            Make a regular expression that can identify what is after the equal for '{left_side}', generalizing. If they are words or numbers after the equal, then a regular expression that can identify them, ignoring uppercase and lowercase. Write it with the following syntax: regex: expression
+            """
+            try: 
+                regular_expresion = self.generate_regular_expresion(prompt)
+                print(regular_expresion)
+                if(regular_expresion): 
+                    with self.lock:  # Asegura el acceso exclusivo al diccionario
+                        if key not in self.resultados:
+                            self.resultados[key] = []
+                        self.resultados[key].append(f"{ex}: {regular_expresion}")
+                    print(f"Se ha generado la expresion regular {key}:{ex}: {regular_expresion}")
+                    #self.updateDecoder(fileName=file_name, xml=xml) 
 
-    def generate_decoder(self, name): 
-        type = ["pcre2", "osregex","osmatch"]
+                else: 
+                    print("No se pudo generar la expresion regular")
 
-        prompt = """
-         Make a regular expression that extracts the capitalized words in the following sentence: "Hola como Estas Amigo", give the answer in this format: regex:expresion
-        """
-        regular_expresion = self.generate_regular_expresion(prompt)
-        if(regular_expresion): 
-            print(f"Se ha generado la expresion regular: {regular_expresion}")
-            xml = f"""
-            <decoder name="{name}">
-                <prematch>variable</prematch>
-            </decoder>
+            except Exception as e:
+                print(f"Hubo una excepcion: {e}")
 
-            <decoder name="mi-decoder">
-                <parent>{name}</parent>
-                    <regex type="{type[0]}">pepe=({regular_expresion})</regex>
-                <order>pepe</order>
-            </decoder>
-                """
-            print(xml)
-            self.updateDecoder(fileName="Prueba27.xml", xml=xml) 
-
-        else: 
-            print("No se pudo generar la expresion regular")
+    def generate_decoder(self, diccionario, file_name, xml): 
+        for key in diccionario.keys(): 
+            t = threading.Thread(target=self.process_key, args=(key, diccionario))
+            t.start()
 
     def generate_regular_expresion(self, prompt): 
         completion = client.chat.completions.create(
@@ -86,7 +88,7 @@ class Decoder:
 
 class Rule: 
     def __init__(self): 
-        self.api = API("192.168.0.105")
+        self.api = API("192.168.1.193")
 
     def create_rule(self): 
         pass
@@ -99,6 +101,3 @@ class Rule:
         response = self.api.updateDecoderRule(type, fileName=fileName, Content=xml)
         print(response)
 
-decoder = Decoder()
-
-decoder.generate_decoder("My_decoder_2")

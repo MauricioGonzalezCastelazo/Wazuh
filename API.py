@@ -77,10 +77,9 @@ class API:
             print(f"No se pudo modificar {e}")
 
         
-    def get(self, type, fileName): 
+    def get(self, type): 
         endpoint = f'{type}/files/'
-        url = self.url+endpoint+fileName
-        endpoint = endpoint+fileName
+        url = self.url+endpoint
         new_header = {
             'Authorization' : self.headers['Authorization'], 
             'Content-Type' : 'application/json'
@@ -88,8 +87,11 @@ class API:
         try: 
             response = requests.get(url, headers = new_header, verify = False)
             response.raise_for_status()
-            print(f"Se ha obtenido la informacin con exito {response.json()}")
-            return response.json()
+            data = response.json()
+            filtered_decoders = [decoder for decoder in data['data']['affected_items']
+                                 if decoder['relative_dirname'].startswith('etc/decoders')]
+            print(f"Se ha obtenido la informacin con exito {filtered_decoders}")
+            return filtered_decoders
         except Exception as e: 
             print(f"No se pudo modificar {e}")
 
@@ -120,8 +122,8 @@ class API:
 #  </rule>
 #"""
 
-#api = API("192.168.0.105")
+api = API("192.168.1.193")
 #api.get("decoders","Prueba27.xml")
 #print(api.log_test("Mar 09 16:38:40 sa05 variable pepe=Jaime", "Prueba27.xml"))
-#api.get('decoders', 'pruebas.xml')
+api.get('decoders')
 #a="<regex>nombre=([A-Z][a-z]+)</regex>"
