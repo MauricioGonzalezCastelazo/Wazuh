@@ -6,7 +6,7 @@ from tkinter import messagebox
 
 class Formulario:
     def __init__(self, diccionario, mostrar_combobox=True):
-        self.api = API("192.168.1.193")
+        self.api = API("192.168.0.211")
         decoder_filenames = self.api.get('decoders')
         self.nombres_archivos = [decoder['filename'] for decoder in decoder_filenames]
         self.root = tk.Tk()

@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import re
 import threading
+import xml.etree.ElementTree as ET
 
 load_dotenv("config.env")
 api_key = os.getenv("OPENAI_API_KEY")
@@ -15,7 +16,7 @@ client = OpenAI(api_key=api_key)
 
 class Decoder: 
     def __init__(self): 
-        self.api = API("192.168.1.193")
+        self.api = API("192.168.0.211")
         self.lock = threading.Lock()
         self.resultados = {}  
 
@@ -33,7 +34,8 @@ class Decoder:
                         if key not in self.resultados:
                             self.resultados[key] = []
                         self.resultados[key].append(f"{ex}: {regular_expresion}")
-                    print(f"Se ha generado la expresion regular {key}:{ex}: {regular_expresion}")
+                    print(self.resultados)
+                    #print(f"Se ha generado la expresion regular {key}:{ex}: {regular_expresion}")
                     #self.updateDecoder(fileName=file_name, xml=xml) 
 
                 else: 
@@ -41,11 +43,42 @@ class Decoder:
 
             except Exception as e:
                 print(f"Hubo una excepcion: {e}")
+    
+    def actualizar_xml(self, xml):
+        root = ET.fromstring(xml)
+
+        for prematch, expresiones in self.resultados.items():
+            decoder = root.find(f"./decoder[@name='{prematch}']")
+            if decoder is not None:
+                for expresion in expresiones:
+                    if ': =' not in expresion:
+                        print(f"La expresión '{expresion}' no está en el formato correcto.")
+                        continue
+                    parts = expresion.split(': =')
+                    palabra, regex = parts[0].split('=')
+                    child = ET.Element('decoder')
+                    child.set('name', f'mi-decoder-{palabra.strip()}')
+                    parent = ET.SubElement(child, 'parent')
+                    parent.text = prematch
+                    regex_element = ET.SubElement(child, 'regex', {'type': 'pcre2'})
+                    regex_element.text = f"{palabra.strip()} = {regex.strip()} = {parts[1].strip()}"
+                    order = ET.SubElement(child, 'order')
+                    order.text = palabra.strip()
+                    decoder.append(child)  # <-- Aquí se cambió 'root' por 'decoder'
+
+        xml_actualizado = ET.tostring(root, encoding='unicode')
+        return xml_actualizado
 
     def generate_decoder(self, diccionario, file_name, xml): 
+        threads =[]
         for key in diccionario.keys(): 
             t = threading.Thread(target=self.process_key, args=(key, diccionario))
+            threads.append(t)
             t.start()
+        # Esperar a que todos los hilos terminen antes de actualizar el XML
+        for t in threads:
+            t.join()
+        print("El xml es el siguiente: \n" + self.actualizar_xml(xml))
 
     def generate_regular_expresion(self, prompt): 
         completion = client.chat.completions.create(
@@ -88,7 +121,7 @@ class Decoder:
 
 class Rule: 
     def __init__(self): 
-        self.api = API("192.168.1.193")
+        self.api = API("192.168.0.211")
 
     def create_rule(self): 
         pass

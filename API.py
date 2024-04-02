@@ -121,9 +121,21 @@ class API:
 #    <description>Registro creado de manera exitosa</description>
 #  </rule>
 #"""
+xml = """
+<decoder name="Prueba">
+                    <prematch>pelos</prematch>
+                </decoder>
 
-api = API("192.168.1.193")
-#api.get("decoders","Prueba27.xml")
-#print(api.log_test("Mar 09 16:38:40 sa05 variable pepe=Jaime", "Prueba27.xml"))
+                <decoder name="mi-decoder-pelos">
+                    <parent>Prueba</parent>
+                    <regex type="pcre2">nombre=([A-Z][a-z]+)</regex>
+                    <order>nombre</order>
+                </decoder>\n\n
+                    """
+
+
+api = API("192.168.0.211")
+#api.addDecoderRule("decoders","Pruebas.xml", xml)
+#print(api.log_test("Mar 09 16:38:40 sa05 pelos nombre=Jaime", "Pruebas.xml"))
 api.get('decoders')
 #a="<regex>nombre=([A-Z][a-z]+)</regex>"
