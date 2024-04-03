@@ -6,7 +6,7 @@ from tkinter import messagebox
 
 class Formulario:
     def __init__(self, diccionario, mostrar_combobox=True):
-        self.api = API("192.168.1.193")
+        self.api = API("192.168.0.105")
         decoder_filenames = self.api.get('decoders')
         self.nombres_archivos = [decoder['filename'] for decoder in decoder_filenames]
         self.root = tk.Tk()
@@ -23,16 +23,18 @@ class Formulario:
             self.nombre_clase_var = tk.StringVar()
             self.nombre_clase_cb = ttk.Combobox(self.root, textvariable=self.nombre_clase_var, state="readonly")
             self.nombre_clase_cb['values'] = self.nombres_archivos
+            self.nombre_clase_var.set(self.nombres_archivos[0])
             self.nombre_clase_cb.pack() 
+            self.nombre_clase_cb.bind("<<ComboboxSelected>>", self.actualizar_var)
             if self.nombres_archivos:  # Asegúrate de que la lista no esté vacía
                 self.nombre_clase_cb.set(self.nombres_archivos[0])  # Establece el primer valor como predeterminado
-            label_nombre_clase = tk.Label(self.root, text="Nombre clase:")
+            label_nombre_clase = tk.Label(self.root, text="Nombre del archivo xml:")
             label_nombre_clase.pack(before=self.nombre_clase_cb)
         else:
             # Crear y empaquetar Entry si mostrar_combobox es False
             self.nombre_clase_entry = tk.Entry(self.root)
             self.nombre_clase_entry.pack()
-            label_nombre_clase = tk.Label(self.root, text="Nombre clase:")
+            label_nombre_clase = tk.Label(self.root, text="Nombre del arhivo xml:")
             label_nombre_clase.pack(before=self.nombre_clase_entry)
 
         # Continuar con la creación del resto del formulario como antes
@@ -48,6 +50,11 @@ class Formulario:
         btn_subir = tk.Button(self.root, text="Subir", command=self.subir)
         btn_subir.pack()
 
+    def actualizar_var(self, event): 
+        print(f"He sido seleccionado {self.nombre_clase_cb.get()}")
+        self.nombre_clase_var.set(self.nombre_clase_cb.get())
+        print(f"Mi valor es: {self.nombre_clase_var.get()}")
+
     def genrar_xml(self): 
         self.file_name = self.datos['nombre_clase']
         # Iniciar el XML como un string vacío
@@ -59,26 +66,25 @@ class Formulario:
 
                 # Iniciar el XML para esta key
                 self.xml += f"""
-                <decoder name="{decoder_name}">
-                    <prematch>{key}</prematch>
-                </decoder>
-
-                <decoder name="mi-decoder-{key}">
-                    <parent>{decoder_name}</parent>
-                    <regex type="pcre2">"""
+<decoder name="{decoder_name}">
+    <prematch>{key}</prematch>
+</decoder>
+<decoder name="mi-decoder-{key}">
+    <parent>{decoder_name}</parent>
+    <regex type="pcre2"></regex>"""
 
                 if key in self.diccionario:
                     regex_parts = [exp.split('=')[0] for exp in self.diccionario[key]]
-                    self.xml += "  " + "=  ".join(regex_parts) + "= "
-                
-                self.xml += f"""</regex>
-                    <order>{', '.join(regex_parts)}</order>
-                </decoder>\n\n"""
+
+                self.xml += f"""
+    <order>{', '.join(regex_parts)}</order>
+</decoder>\n\n"""
 
     def subir(self):
         campos_llenos = True
         if hasattr(self, 'nombre_clase_cb'):  
-            nombre_clase = self.nombre_clase_var.get().strip()
+            nombre_clase = self.nombre_clase_var.get()
+            print(nombre_clase)
         else:  
             nombre_clase = self.nombre_clase_entry.get().strip()
 

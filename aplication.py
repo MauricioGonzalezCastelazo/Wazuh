@@ -9,6 +9,7 @@ from tkinter import filedialog
 from form import Formulario
 import threading
 
+
 load_dotenv("config.env")
 api_key = os.getenv("OPENAI_API_KEY")
 if api_key is None:
@@ -141,7 +142,7 @@ class App:
         formulario = Formulario(diccionario=diccionary, mostrar_combobox=type)
         formulario.root.wait_window()
         xml = formulario.get_xml()
-        self.decoder.generate_decoder(diccionary, xml[0], xml[1])
+        self.decoder.create_decoder(diccionary, xml[0], xml[1], type)
 
     def test_log(self, file, txt): 
         self.decoder.testDecoderLog(file, txt)
